@@ -1,0 +1,322 @@
+nelmio_api_doc:
+    routes: # to filter documented routes
+        path_patterns:
+            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+    documentation:
+#        basePath: /api
+        info:
+            title: My Swagger API
+            description: Demo de API REST aplicando SWAGGER
+            version: 1.0.0
+
+        securityDefinitions:
+          BearerAuth:
+            type: apiKey
+            name: Authorization
+            in: header
+            description: Token bearer de autenticación
+
+        paths:
+            # Test action
+            /api/test:
+              get:
+                summary: Acción de prueba
+                description: Es una acción para probar swagger
+                tags: [Test]
+                responses:
+                  '200':
+                    description: Todo conforme
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+
+            # Login
+            /api/login_check:
+                post:
+                    summary: Iniciar sessión
+                    description: Acceder al sistema ingresando las credenciales de acceso
+                    tags: [User]
+                    parameters:
+                        - name: username
+                          in: formData
+                          type: string
+                          description: The username
+                          required: true
+                        - name: password
+                          in: formData
+                          type: string
+                          description: The password
+                          required: true
+                    responses:
+                        '200':
+                            description: User was logged in successfully
+                        '500':
+                            description: User was not logged in successfully
+
+            # Register
+            /api/register:
+                post:
+                    summary: Registro de usuarios
+                    description: Registro de un nuevo usuario
+                    tags: [User]
+                    parameters:
+                         - name: name
+                           in: formData
+                           type: string
+                           required: true
+                           description: The name
+                         - name: email
+                           in: formData
+                           type: string
+                           required: true
+                           description: The email
+                         - name: username
+                           in: formData
+                           type: string
+                           description: The username
+                           required: true
+                         - name: password
+                           in: formData
+                           type: string
+                           description: The password
+                           required: true
+                    responses:
+                        '200':
+                            description: User was successfully registered
+                        '500':
+                            description: User was not successfully registered
+
+            # Users
+            /api/users:
+              get:
+                summary: Lista de usuarios
+                description: Obtener lista de usuarios
+                tags: [User]
+                responses:
+                  '200':
+                    description: Lista de usuarios obtenida
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+
+            /api/users/{id}:
+              get:
+                summary: Obtener usuario
+                description: Obtener información del usuario por su id
+                tags: [User]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The user id
+                    required: true
+                responses:
+                  '200':
+                    description: Usuario encontrado
+                  '404':
+                    description: Usuario no encontrado
+
+            # boards api
+            /api/v1/boards:
+              get:
+                security:
+                  - BearerAuth: []
+                summary: Lista de pizarras
+                description: Listado de las pizarras registradas
+                tags: [Boards]
+                responses:
+                  '200':
+                    description: Gets all boards for current logged user.
+                    content:
+                      application/json:
+                        schema:
+                          type: array
+                  '500':
+                    description: An error has occurred trying to get all user boards.
+              post:
+                security:
+                  - BearerAuth: []
+                summary: Crear pizarra
+                description: Registra datos de pizarra
+                tags: [Boards]
+                parameters:
+                  - name: name
+                    in: formData
+                    type: string
+                    required: true
+                responses:
+                  '201':
+                    description: Board was added successfully.
+                  '500':
+                    description: An error was occurred trying to add new board.
+
+            /api/v1/boards/{id}:
+              get:
+                security:
+                  - BearerAuth: []
+                summary: Obtener pizarra
+                description: Obtener los datos de una pizarra por su id
+                tags: [Boards]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The board id
+                    required: true
+                responses:
+                  '200':
+                    description: Gets board info based on passed ID parameter.
+                  '404':
+                    description: The board with the passed ID parameter was not found or doesn't exist.
+              put:
+                security:
+                  - BearerAuth: []
+                summary: Actualizar pizzarra
+                description: Actualizar los datos de una pizarra por su id
+                tags: [Boards]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The board id
+                    required: true
+                  - name: name
+                    in: formData
+                    type: string
+                    required: true
+                responses:
+                  '200':
+                    description: The board was edited successfully.
+                  '500':
+                    description: An error has occurred trying to edit the board.
+
+              delete:
+                security:
+                  - BearerAuth: []
+                summary: Eliminar pizarra
+                description: Eliminar los datos de pizarra por su id
+                tags: [Boards]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The board id
+                    required: true
+                responses:
+                  '200':
+                    description: The board was removed successfully.
+                  '500':
+                    description: An error has occurred trying to remove the board.
+
+            # Tasks
+            /api/v1/tasks:
+              post:
+                security:
+                  - BearerAuth: []
+                summary: Crear tarea
+                description: Registra datos de tareas
+                tags: [Tasks]
+                parameters:
+                  - name: title
+                    in: formData
+                    type: string
+                    description: The task title
+                    required: true
+                  - name: description
+                    in: formData
+                    type: string
+                    description: The task description
+                    required: true
+                  - name: status
+                    in: formData
+                    type: string
+                    description: "The task status. Allowed values: Backlog, Working, Done"
+                    required: true
+                    enum: ['Backlog', 'Working', 'Done']
+                  - name: priority
+                    in: formData
+                    type: string
+                    description: "The task priority. Allowed values: High, Medium, Low"
+                    required: true
+                    enum: ["High", "Medium", "Low"]
+                  - name: priority
+                    in: formData
+                    type: integer
+                    description: "The board id of the new task"
+                    required: true
+                responses:
+                  '201':
+                    description: Task was added successfully.
+                  '500':
+                    description: An error was occurred trying to add new task.
+
+            /api/v1/tasks/{id}:
+              put:
+                security:
+                  - BearerAuth: []
+                summary: Actualizar tarea
+                description: Actualizar los datos de una tarea por su id
+                tags: [Tasks]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The board id
+                    required: true
+                  - name: title
+                    in: formData
+                    type: string
+                    description: The task title
+                    required: true
+                  - name: description
+                    in: formData
+                    type: string
+                    description: The task description
+                    required: true
+                  - name: status
+                    in: formData
+                    type: string
+                    description: "The task status. Allowed values: Backlog, Working, Done"
+                    required: true
+                    enum: ['Backlog', 'Working', 'Done']
+                  - name: priority
+                    in: formData
+                    type: string
+                    description: "The task priority. Allowed values: High, Medium, Low"
+                    required: true
+                    enum: ["High", "Medium", "Low"]
+                  - name: priority
+                    in: formData
+                    type: integer
+                    description: "The board id of the new task"
+                    required: true
+                responses:
+                  '200':
+                    description: The task was edited successfully.
+                  '500':
+                    description: An error has occurred trying to edit the task.
+
+              delete:
+                security:
+                  - BearerAuth: []
+                summary: Eliminar tarea
+                description: Eliminar los datos de tarea por su id
+                tags: [Tasks]
+                parameters:
+                  - name: id
+                    in: path
+                    type: integer
+                    description: The task id
+                    required: true
+                responses:
+                  '200':
+                    description: The task was removed successfully.
+                  '500':
+                    description: An error has occurred trying to remove the task.
+
+
+
+
+

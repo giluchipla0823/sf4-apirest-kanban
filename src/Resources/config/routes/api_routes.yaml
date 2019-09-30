@@ -1,0 +1,80 @@
+test:
+  path:     /test
+  controller: App\Controller\DefaultController::testAction
+  methods: [GET]
+
+# Ruta de login
+login:
+  path:     /login_check
+  controller: App\Controller\AuthController::getLoginCheckAction
+  methods: [POST]
+
+# Rutas de usuarios
+users_list:
+  path:     /users
+  controller: App\Controller\UsersController::indexAction
+  methods: [GET]
+
+users_get:
+  path:     /users/{id}
+  controller: App\Controller\UsersController::showAction
+  methods: [GET]
+  requirements:
+    id: \d+
+
+users_register:
+  path:     /register
+  controller: App\Controller\UsersController::createAction
+  methods: [POST]
+
+# Rutas de boards
+boards_index:
+  path:     /v1/boards
+  defaults: {_controller: App\Controller\BoardsController::indexAction}
+  methods: [GET]
+
+boards_get:
+  path:     /v1/boards/{id}
+  defaults: {_controller: App\Controller\BoardsController::showAction}
+  methods: [GET]
+  requirements:
+    id: \d+
+
+boards_create:
+  path:     /v1/boards
+  controller: App\Controller\BoardsController::createAction
+  methods: [POST]
+
+boards_update:
+  path:     /v1/boards/{id}
+  defaults: {_controller: App\Controller\BoardsController::updateAction}
+  methods: [PUT]
+  requirements:
+    id: \d+
+
+boards_delete:
+  path:     /v1/boards/{id}
+  defaults: {_controller: App\Controller\BoardsController::deleteAction}
+  methods: [DELETE]
+  requirements:
+    id: \d+
+
+# Rutas tasks
+tasks_create:
+  path:     /v1/tasks
+  controller: App\Controller\BoardsController::createAction
+  methods: [POST]
+
+tasks_update:
+  path:     /v1/tasks/{id}
+  defaults: {_controller: App\Controller\BoardsController::updateAction}
+  methods: [PUT]
+  requirements:
+    id: \d+
+
+tasks_delete:
+  path:     /v1/tasks/{id}
+  defaults: {_controller: App\Controller\BoardsController::deleteAction}
+  methods: [DELETE]
+  requirements:
+    id: \d+

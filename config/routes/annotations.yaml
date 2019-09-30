@@ -1,0 +1,10 @@
+controllers:
+    resource: ../../src/Controller/
+    type: annotation
+
+api:
+    resource: ../src/Resources/config/routes/api_routes.yaml
+    prefix: /api
+    name_prefix: 'api_'
+
+

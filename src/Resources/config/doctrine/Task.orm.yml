@@ -1,0 +1,62 @@
+App\Entity\Task:
+    type: entity
+    table: tasks
+    repositoryClass: App\Repository\TaskRepository
+    indexes:
+        IDX_527EDB25E7EC5785:
+            columns:
+                - board_id
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        title:
+            type: string
+            nullable: false
+            length: 150
+            options:
+                fixed: false
+        description:
+            type: text
+            nullable: false
+            length: 0
+            options:
+                fixed: false
+        status:
+            type: string
+            nullable: false
+            length: 50
+            options:
+                fixed: false
+        priority:
+            type: string
+            nullable: false
+            length: 10
+            options:
+                fixed: false
+        createdAt:
+            type: datetime
+            nullable: false
+            column: created_at
+        updatedAt:
+            type: datetime
+            nullable: false
+            column: updated_at
+    manyToOne:
+        board:
+            targetEntity: Board
+            cascade: {  }
+            fetch: LAZY
+            mappedBy: null
+            inversedBy: null
+            joinColumns:
+                board_id:
+                    referencedColumnName: id
+            orphanRemoval: false
+    lifecycleCallbacks: {  }

@@ -1,0 +1,67 @@
+App\Entity\User:
+    type: entity
+    table: users
+    repositoryClass: App\Repository\UserRepository
+    uniqueConstraints:
+        UNIQ_8D93D649E7927C74:
+            columns:
+                - email
+        UNIQ_8D93D649F85E0677:
+            columns:
+                - username
+    id:
+        id:
+            type: integer
+            nullable: false
+            options:
+                unsigned: false
+            id: true
+            generator:
+                strategy: IDENTITY
+    fields:
+        name:
+            type: string
+            nullable: false
+            length: 150
+            options:
+                fixed: false
+        email:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+        username:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+        password:
+            type: string
+            nullable: false
+            length: 255
+            options:
+                fixed: false
+        roles:
+            type: json_array
+            nullable: false
+            length: 0
+            options:
+                fixed: false
+        createdAt:
+            type: datetime
+            nullable: false
+            column: created_at
+        updatedAt:
+            type: datetime
+            nullable: false
+            column: updated_at
+    oneToMany:
+        boards:
+            targetEntity: Board
+            fetch: LAZY
+            mappedBy: user
+            inversedBy: null
+            orphanRemoval: false
+    lifecycleCallbacks: {  }
