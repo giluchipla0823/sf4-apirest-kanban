@@ -62,12 +62,12 @@ boards_delete:
 # Rutas tasks
 tasks_create:
   path:     /v1/tasks
-  controller: App\Controller\BoardsController::createAction
+  controller: App\Controller\TasksController::createAction
   methods: [POST]
 
 tasks_update:
   path:     /v1/tasks/{id}
-  defaults: {_controller: App\Controller\BoardsController::updateAction}
+  defaults: {_controller: App\Controller\TasksController::updateAction}
   methods: [PUT]
   requirements:
     id: \d+

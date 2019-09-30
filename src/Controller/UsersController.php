@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Exceptions\ValidationException;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class UsersController extends ApiController
 {
+    public function __construct(Registry $doctrine)
+    {
+        parent::__construct($doctrine, User::class);
+    }
+
     /**
      * Lista de usuarios
      *
@@ -18,9 +24,7 @@ class UsersController extends ApiController
      * @return JsonResponse
      */
     public function indexAction(Request $request){
-        $users = $this->getDoctrine()
-            ->getRepository(User::class)
-            ->findByCriteria();
+        $users = $this->repository->findByCriteria();
 
         return $this->showCollectionResponse($users);
     }
@@ -33,7 +37,7 @@ class UsersController extends ApiController
      * @return JsonResponse
      */
     public function showAction(Request $request, int $id){
-        $user = $this->getDoctrine()->getRepository(User::class)->findOrFail($id);
+        $user = $this->repository->findOrFail($id);
 
         return $this->showInstanceResponse($user);
     }
@@ -66,9 +70,7 @@ class UsersController extends ApiController
 
         $this->validateDataRequest($requestParams, $constraints);
 
-        $user = $this->getDoctrine()
-                    ->getRepository(User::class)
-                    ->create($requestParams);
+        $user = $this->repository->create($requestParams);
 
         return $this->successResponse($this->serializerInstance($user),
             'User created successfully',

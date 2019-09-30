@@ -2,23 +2,20 @@
 
 namespace App\Controller;
 
-use App\Helpers\AppHelper;
 use App\Traits\ApiRequestValidation;
 use App\Traits\ApiResponser;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use FOS\RestBundle\Controller\FOSRestController;
 
 class ApiController extends FOSRestController
 {
-    use ApiResponser, ApiRequestValidation;
+    use ApiResponser;
 
     protected $repository;
 
-    public function __construct($entityClass = NULL)
+    public function __construct(Registry $doctrine, $entityClass = NULL)
     {
         if($entityClass){
-            $container = AppHelper::getKernelContainer();
-            $doctrine = $container->get('doctrine');
-
             $this->repository = $doctrine->getRepository($entityClass);
         }
     }

@@ -3,18 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Board;
-use App\Exceptions\ValidationException;
+use App\Validator\Requests\BoardRequest;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class BoardsController extends ApiController
 {
 
-    public function __construct()
+    public function __construct(Registry $doctrine)
     {
-        parent::__construct(Board::class);
+        parent::__construct($doctrine, Board::class);
     }
 
     /**
@@ -49,21 +49,13 @@ class BoardsController extends ApiController
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws ValidationException
      */
     public function createAction(Request $request) {
         $request->query->add(['includes' => 'user']);
-        $requestParams = $request->request->all();
 
-        $constraints = [
-            'name' => [
-                new Assert\NotBlank()
-            ]
-        ];
+        $this->get(BoardRequest::class)->validate();
 
-        $this->validateDataRequest($requestParams, $constraints);
-
-        $board = $this->repository->create($requestParams, $this->getUser());
+        $board = $this->repository->create($request->request->all(), $this->getUser());
 
         return $this->successResponse($this->serializerInstance($board),
             'Board created successfully',
@@ -77,23 +69,15 @@ class BoardsController extends ApiController
      * @param Request $request
      * @param int $id
      * @return JsonResponse
-     * @throws ValidationException
      */
     public function updateAction(Request $request, int $id) {
         $board = $this->repository->findOrFail($id);
 
         $request->query->add(['includes' => 'user']);
-        $requestParams = $request->request->all();
 
-        $constraints = [
-            'name' => [
-                new Assert\NotBlank()
-            ]
-        ];
+        $this->get(BoardRequest::class)->validate();
 
-        $this->validateDataRequest($requestParams, $constraints);
-
-        $board = $this->repository->update($requestParams, $board);
+        $board = $this->repository->update($request->request->all(), $board);
 
         return $this->successResponse(
             $this->serializerInstance($board),

@@ -21,7 +21,13 @@ services:
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
         resource: '../src/Controller'
+        arguments: ['@doctrine']
         tags: ['controller.service_arguments']
+
+    App\Validator\Requests\:
+        public: true
+        resource: '../src/Validator/Requests'
+        arguments: ['@request_stack']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

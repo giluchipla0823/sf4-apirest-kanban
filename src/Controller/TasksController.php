@@ -2,65 +2,41 @@
 
 namespace App\Controller;
 
+use App\Entity\Board;
 use App\Entity\Task;
-use Symfony\Component\Config\Definition\Exception\Exception;
+use App\Validator\Requests\TaskRequest;
+use Doctrine\Bundle\DoctrineBundle\Registry;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TasksController extends ApiController
 {
+    public function __construct(Registry $doctrine)
+    {
+        parent::__construct($doctrine, Task::class);
+    }
+
     /**
      * Crear tarea
      *
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
     public function createAction(Request $request) {
-        $serializer = $this->get('jms_serializer');
-        $em = $this->getDoctrine()->getManager();
-        $task = [];
-        $message = "";
+        $this->get(TaskRequest::class)->validate();
 
-        try {
-            $code = 201;
-            $error = false;
-            $title = $request->request->get("title", null);
-            $description = $request->request->get("description", null);
-            $status = $request->request->get("status", null);
-            $priority = $request->request->get("priority", null);
-            $boardId= $request->request->get("board_id", null);
+        // Obtener la pizarra por su id
+        $board = $this->getDoctrine()->getRepository(Board::class)
+                    ->findOrFail($request->get('board_id'));
 
-            if (!is_null($title) && !is_null($description) && !is_null($status) && !is_null($priority) && !is_null($boardId)) {
-                $task = new Task();
-                $board = $em->getRepository("App:Board")->find($boardId);
-                $task->setBoard($board);
-                $task->setTitle($title);
-                $task->setDescription($description);
-                $task->setStatus($status);
-                $task->setPriority($priority);
+        $task = $this->repository->create($request->request->all(), $board);
 
-                $em->persist($task);
-                $em->flush();
-
-            } else {
-                $code = 500;
-                $error = true;
-                $message = "An error has occurred trying to add new task - Error: You must to provide all the required fields";
-            }
-
-        } catch (Exception $ex) {
-            $code = 500;
-            $error = true;
-            $message = "An error has occurred trying to add new task - Error: {$ex->getMessage()}";
-        }
-
-        $response = [
-            'code' => $code,
-            'error' => $error,
-            'data' => $code == 201 ? $task : $message,
-        ];
-
-        return new Response($serializer->serialize($response, "json"));
+        return $this->successResponse(
+            $this->serializerInstance($task),
+            'Task created successfully',
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -68,62 +44,22 @@ class TasksController extends ApiController
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return JsonResponse
      */
     public function updateAction(Request $request, int $id) {
-        $serializer = $this->get('jms_serializer');
-        $em = $this->getDoctrine()->getManager();
-        $task = [];
-        $message = "";
+        $task = $this->repository->findOrFail($id);
 
-        try {
-            $code = 200;
-            $error = false;
-            $title = $request->request->get("title", null);
-            $description = $request->request->get("description", null);
-            $status = $request->request->get("status", null);
-            $priority = $request->request->get("priority", null);
-            $task = $em->getRepository("App:Task")->find($id);
+        $this->get(TaskRequest::class)->validate();
 
-            if (!is_null($task)) {
-                if (!is_null($title)) {
-                    $task->setTitle($title);
-                }
+        $board = $this->getDoctrine()->getRepository(Board::class)
+                    ->findOrFail($request->get('board_id'));
 
-                if (!is_null($description)) {
-                    $task->setDescription($description);
-                }
+        $task = $this->repository->update($request->request->all(), $task, $board);
 
-                if (!is_null($status)) {
-                    $task->setStatus($status);
-                }
-
-                if (!is_null($priority)) {
-                    $task->setPriority($priority);
-                }
-
-                $em->persist($task);
-                $em->flush();
-
-            } else {
-                $code = 500;
-                $error = true;
-                $message = "An error has occurred trying to edit the current task - Error: The task id does not exist";
-            }
-
-        } catch (Exception $ex) {
-            $code = 500;
-            $error = true;
-            $message = "An error has occurred trying to edit the current task - Error: {$ex->getMessage()}";
-        }
-
-        $response = [
-            'code' => $code,
-            'error' => $error,
-            'data' => $code == 200 ? $task : $message,
-        ];
-
-        return new Response($serializer->serialize($response, "json"));
+        return $this->successResponse(
+            $this->serializerInstance($task),
+            'Task updated successfully'
+        );
     }
 
     /**
@@ -131,41 +67,13 @@ class TasksController extends ApiController
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return JsonResponse
      */
     public function deleteAction(Request $request, int $id) {
-        $serializer = $this->get('jms_serializer');
-        $em = $this->getDoctrine()->getManager();
+        $task = $this->repository->findOrFail($id);
 
-        try {
-            $code = 200;
-            $error = false;
-            $task = $em->getRepository("App:Task")->find($id);
+        $this->repository->remove($task);
 
-            if (!is_null($task)) {
-                $em->remove($task);
-                $em->flush();
-
-                $message = "The task was removed successfully!";
-
-            } else {
-                $code = 500;
-                $error = true;
-                $message = "An error has occurred trying to remove the currrent task - Error: The task id does not exist";
-            }
-
-        } catch (Exception $ex) {
-            $code = 500;
-            $error = true;
-            $message = "An error has occurred trying to remove the current task - Error: {$ex->getMessage()}";
-        }
-
-        $response = [
-            'code' => $code,
-            'error' => $error,
-            'data' => $message,
-        ];
-
-        return new Response($serializer->serialize($response, "json"));
+        return $this->showMessageResponse('Task deleted successfully');
     }
 }
