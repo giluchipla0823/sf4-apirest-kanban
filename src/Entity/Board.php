@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use JMS\Serializer\Annotation\Groups;
+
 class Board
 {
     private $id;
@@ -12,6 +14,10 @@ class Board
 
     private $updatedAt;
 
+    /**
+     * @Groups({"user"})
+     * @var User
+     */
     private $user;
 
     public function getId(): ?int
