@@ -11,6 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class BoardsController extends ApiController
 {
+
+    public function __construct()
+    {
+        parent::__construct(Board::class);
+    }
+
     /**
      * Lista de pizarras
      *
@@ -20,8 +26,7 @@ class BoardsController extends ApiController
     public function indexAction(Request $request) {
         $user = $this->getUser();
 
-        $boards = $this->getDoctrine()->getRepository(Board::class)
-                        ->findBy(['user' => $user->getId()]);
+        $boards = $this->repository->findBy(['user' => $user->getId()]);
 
         return $this->showCollectionResponse($boards);
     }
@@ -34,8 +39,7 @@ class BoardsController extends ApiController
      * @return Response
      */
     public function showAction(Request $request, $id) {
-        $board = $this->getDoctrine()->getRepository(Board::class)
-            ->findOrFail($id);
+        $board = $this->repository->findOrFail($id);
 
         return $this->showInstanceResponse($board);
     }
@@ -59,9 +63,7 @@ class BoardsController extends ApiController
 
         $this->validateDataRequest($requestParams, $constraints);
 
-        $board = $this->getDoctrine()
-            ->getRepository(Board::class)
-            ->create($requestParams, $this->getUser());
+        $board = $this->repository->create($requestParams, $this->getUser());
 
         return $this->successResponse($this->serializerInstance($board),
             'Board created successfully',
@@ -78,9 +80,7 @@ class BoardsController extends ApiController
      * @throws ValidationException
      */
     public function updateAction(Request $request, int $id) {
-        $repository = $this->getDoctrine()->getRepository(Board::class);
-
-        $board = $repository->findOrFail($id);
+        $board = $this->repository->findOrFail($id);
 
         $request->query->add(['includes' => 'user']);
         $requestParams = $request->request->all();
@@ -93,7 +93,7 @@ class BoardsController extends ApiController
 
         $this->validateDataRequest($requestParams, $constraints);
 
-        $board = $repository->update($requestParams, $board);
+        $board = $this->repository->update($requestParams, $board);
 
         return $this->successResponse(
             $this->serializerInstance($board),
@@ -109,11 +109,9 @@ class BoardsController extends ApiController
      * @return Response
      */
     public function deleteAction(Request $request, int $id) {
-        $repository = $this->getDoctrine()->getRepository(Board::class);
+        $board = $this->repository->findOrFail($id);
 
-        $board = $repository->findOrFail($id);
-
-        $repository->remove($board);
+        $this->repository->remove($board);
 
         return $this->showMessageResponse('Board deleted successfully');
     }
