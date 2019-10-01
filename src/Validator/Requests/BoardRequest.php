@@ -14,7 +14,7 @@ class BoardRequest extends BaseRequest
     }
 
     public function rules(){
-        $method = $this->request->getMethod();
+        $method = $this->getCurrentRequest()->getMethod();
 
         switch ($method){
             case 'PUT':

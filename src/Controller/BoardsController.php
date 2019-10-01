@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 
 class BoardsController extends ApiController
 {
@@ -35,25 +36,23 @@ class BoardsController extends ApiController
      * Obtener pizarra por su id
      *
      * @param Request $request
-     * @param int $id
-     * @return Response
+     * @param Board $board
+     * @Entity("board", expr="repository.findOrFail(id)")
+     * @return JsonResponse
      */
-    public function showAction(Request $request, $id) {
-        $board = $this->repository->findOrFail($id);
-
+    public function showAction(Request $request, Board $board) {
         return $this->showInstanceResponse($board);
     }
 
     /**
      * Crear pizarra
      *
-     * @param Request $request
+     * @param BoardRequest $request
      * @return JsonResponse
      */
-    public function createAction(Request $request) {
+    public function createAction(BoardRequest $request) {
+        $request = $request->getCurrentRequest();
         $request->query->add(['includes' => 'user']);
-
-        $this->get(BoardRequest::class)->validate();
 
         $board = $this->repository->create($request->request->all(), $this->getUser());
 
@@ -66,13 +65,13 @@ class BoardsController extends ApiController
     /**
      * Actualizar datos de una pizarra
      *
-     * @param Request $request
-     * @param int $id
+     * @param BoardRequest $request
+     * @param Board $board
+     * @Entity("board", expr="repository.findOrFail(id)")
      * @return JsonResponse
      */
-    public function updateAction(Request $request, int $id) {
-        $board = $this->repository->findOrFail($id);
-
+    public function updateAction(BoardRequest $request, Board $board) {
+        $request = $request->getCurrentRequest();
         $request->query->add(['includes' => 'user']);
 
         $this->get(BoardRequest::class)->validate();

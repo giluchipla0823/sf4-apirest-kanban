@@ -6,6 +6,9 @@ use JMS\Serializer\Annotation\Groups;
 
 class Board
 {
+    /**
+     * @var $id
+     */
     private $id;
 
     private $name;

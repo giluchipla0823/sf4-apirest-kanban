@@ -20,11 +20,11 @@ class TasksController extends ApiController
     /**
      * Crear tarea
      *
-     * @param Request $request
+     * @param TaskRequest $request
      * @return JsonResponse
      */
-    public function createAction(Request $request) {
-        $this->get(TaskRequest::class)->validate();
+    public function createAction(TaskRequest $request) {
+        $request = $request->getCurrentRequest();
 
         // Obtener la pizarra por su id
         $board = $this->getDoctrine()->getRepository(Board::class)
@@ -42,14 +42,14 @@ class TasksController extends ApiController
     /**
      * Actualizar tarea
      *
-     * @param Request $request
+     * @param TaskRequest $request
      * @param int $id
      * @return JsonResponse
      */
-    public function updateAction(Request $request, int $id) {
+    public function updateAction(TaskRequest $request, int $id) {
         $task = $this->repository->findOrFail($id);
 
-        $this->get(TaskRequest::class)->validate();
+        $request = $request->getCurrentRequest();
 
         $board = $this->getDoctrine()->getRepository(Board::class)
                     ->findOrFail($request->get('board_id'));

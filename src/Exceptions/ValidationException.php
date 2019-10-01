@@ -16,7 +16,7 @@ class ValidationException extends \Exception
      */
     protected $errors;
 
-    public function __construct(ConstraintViolationListInterface $errors, $code = Response::HTTP_BAD_REQUEST, $message = "Validation failed", \Throwable $previous = null)
+    public function __construct(ConstraintViolationListInterface $errors, $code = Response::HTTP_UNPROCESSABLE_ENTITY, $message = "Validation failed", \Throwable $previous = null)
     {
         $this->setErrors($errors);
 
