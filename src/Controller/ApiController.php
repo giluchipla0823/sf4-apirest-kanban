@@ -2,14 +2,14 @@
 
 namespace App\Controller;
 
-use App\Traits\ApiRequestValidation;
 use App\Traits\ApiResponser;
+use App\Traits\ResponseTransformer;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use FOS\RestBundle\Controller\FOSRestController;
 
 class ApiController extends FOSRestController
 {
-    use ApiResponser;
+    use ApiResponser, ResponseTransformer;
 
     protected $repository;
 

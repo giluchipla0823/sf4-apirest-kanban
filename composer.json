@@ -10,6 +10,7 @@
         "lcobucci/jwt": "^3.3",
         "lexik/jwt-authentication-bundle": "^2.6",
         "nelmio/api-doc-bundle": "^3.4",
+        "samj/fractal-bundle": "^2.1",
         "sensio/framework-extra-bundle": "^5.4",
         "symfony/asset": "4.3.*",
         "symfony/console": "4.3.*",

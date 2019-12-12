@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Transformers\UserTransformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -9,6 +10,12 @@ use JMS\Serializer\Annotation\Groups;
 
 class User implements UserInterface
 {
+    /**
+     * @var string
+     * @Exclude(if="true")
+     */
+    public $transformer = UserTransformer::class;
+
     private $id;
 
     private $name;

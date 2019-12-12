@@ -2,10 +2,18 @@
 
 namespace App\Entity;
 
+use App\Transformers\BoardTransformer;
 use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Exclude;
 
 class Board
 {
+    /**
+     * @var string
+     * @Exclude(if="true")
+     */
+    public $transformer = BoardTransformer::class;
+
     /**
      * @var $id
      */
@@ -74,5 +82,9 @@ class Board
         $this->user = $user;
 
         return $this;
+    }
+
+    public function getTransformer(){
+        return $this->transformer;
     }
 }

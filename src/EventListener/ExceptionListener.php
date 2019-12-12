@@ -2,9 +2,11 @@
 
 namespace App\EventListener;
 
+use Adamsafr\FormRequestBundle\Exception\FormValidationException;
 use App\Exceptions\ValidationException;
 use App\Helpers\AppHelper;
-use App\Helpers\JsonResponseHelper;
+use App\Helpers\ApiHelper;
+use App\Helpers\ValidationHelper;
 use App\Traits\ApiResponser;
 use Doctrine\DBAL\Exception\ConnectionException as DBALConnectionException;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,8 +28,15 @@ class ExceptionListener
 
         $exception = $event->getException();
 
+        dump($exception);
+        exit();
+
         if($container->getParameter('exception_view')){
             throw $exception;
+        }
+
+        if($exception instanceof FormValidationException){
+            throw new ValidationException($exception->getViolations());
         }
 
         if($exception instanceof ValidationException){
@@ -64,7 +73,7 @@ class ExceptionListener
         $message = $exception->getMessage();
         $errors = $exception->getErrors();
 
-        $response = $this->errorResponse($message, $code, [JsonResponseHelper::IDX_JSON_ERRORS => $errors]);
+        $response = $this->errorResponse($message, $code, [ApiHelper::IDX_JSON_ERRORS => $errors]);
 
         return $event->setResponse($response);
     }

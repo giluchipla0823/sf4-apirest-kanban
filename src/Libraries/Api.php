@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Libraries;
 
-class JsonResponseHelper
+class Api
 {
     CONST IDX_JSON_CODE = 'code';
     CONST IDX_JSON_MESSAGE = 'message';
     CONST IDX_JSON_DATA = 'data';
     CONST IDX_JSON_ERRORS = 'errors';
 
-    public static function getResponse($data, $message, $code, $extras = []){
+    public function makeResponse($data, string $message, int $code, array $extras = []): array {
         $response = [
             self::IDX_JSON_CODE => $code,
             self::IDX_JSON_MESSAGE => $message,
