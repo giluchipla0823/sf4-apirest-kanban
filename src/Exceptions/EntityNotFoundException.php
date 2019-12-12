@@ -13,7 +13,7 @@ class EntityNotFoundException extends \Exception
     {
         if(!$message){
 
-            $message = "Not found {$this->transformEntityName($entity)} instance with specified id";
+            $message = "No existe una instancia de {$this->transformEntityName($entity)} con el id especificado";
         }
 
         parent::__construct($message, $code, $previous);

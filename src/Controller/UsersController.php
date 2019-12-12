@@ -33,11 +33,11 @@ class UsersController extends ApiController
      * Obtener usuario
      *
      * @param Request $request
-     * @param int $id
+     * @param User $user
      * @return JsonResponse
      */
-    public function showAction(Request $request, int $id){
-        $user = $this->repository->findOrFail($id);
+    public function showAction(Request $request, User $user){
+        // $user = $this->repository->findOrFail($id);
 
         return $this->showInstanceResponse($user);
     }
@@ -47,7 +47,6 @@ class UsersController extends ApiController
      *
      * @param Request $request
      * @return JsonResponse
-     * @throws ValidationException
      */
     public function createAction(Request $request) {
         $requestParams = $request->request->all();
@@ -72,7 +71,7 @@ class UsersController extends ApiController
 
         $user = $this->repository->create($requestParams);
 
-        return $this->successResponse($this->serializerInstance($user),
+        return $this->successResponse($this->transformInstance($user),
             'User created successfully',
             Response::HTTP_CREATED
         );

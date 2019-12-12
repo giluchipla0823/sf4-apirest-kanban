@@ -3,14 +3,16 @@
 namespace App\EventListener;
 
 use Adamsafr\FormRequestBundle\Exception\FormValidationException;
+use App\Exceptions\EntityNotFoundException;
 use App\Exceptions\ValidationException;
 use App\Helpers\AppHelper;
 use App\Helpers\ApiHelper;
-use App\Helpers\ValidationHelper;
 use App\Traits\ApiResponser;
 use Doctrine\DBAL\Exception\ConnectionException as DBALConnectionException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class ExceptionListener
 {
@@ -28,15 +30,12 @@ class ExceptionListener
 
         $exception = $event->getException();
 
-        dump($exception);
-        exit();
-
         if($container->getParameter('exception_view')){
             throw $exception;
         }
 
-        if($exception instanceof FormValidationException){
-            throw new ValidationException($exception->getViolations());
+        if($exception instanceof NotFoundHttpException){
+            return $this->getResponseHttpNotFoundException($event, $exception);
         }
 
         if($exception instanceof ValidationException){
@@ -53,13 +52,25 @@ class ExceptionListener
             $code = $exception->getStatusCode();
         }
 
-        $code = $code > 0 ? $code : Response::HTTP_INTERNAL_SERVER_ERROR;
+        try {
+            $json = $this->errorResponse($exception->getMessage(), $code);
+        }catch (\Exception $exc){
+            $json = $this->errorResponse('Error inesperado('. $exc->getCode() .'): ' . $exc->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
-        $message = $exception->getMessage();
+        return $event->setResponse($json);
+    }
 
-        $response = $this->errorResponse($message, $code);
+    public function getResponseHttpNotFoundException(GetResponseForExceptionEvent $event, NotFoundHttpException $exception){
+        if(!$exception->getPrevious() instanceof ResourceNotFoundException){
+            $model = str_replace(" object not found by the @ParamConverter annotation.", "", $exception->getMessage());
 
-        return $event->setResponse($response);
+            $exception = new EntityNotFoundException($model);
+        }
+
+        $json = $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
+
+        return $event->setResponse($json);
     }
 
     /**
@@ -73,9 +84,9 @@ class ExceptionListener
         $message = $exception->getMessage();
         $errors = $exception->getErrors();
 
-        $response = $this->errorResponse($message, $code, [ApiHelper::IDX_JSON_ERRORS => $errors]);
+        $json = $this->errorResponse($message, $code, [ApiHelper::IDX_JSON_ERRORS => $errors]);
 
-        return $event->setResponse($response);
+        return $event->setResponse($json);
     }
 
     /**
@@ -87,6 +98,8 @@ class ExceptionListener
     public function getResponseDBALConnectionException(GetResponseForExceptionEvent $event, DBALConnectionException $exception){
         $message = "Error {$exception->getErrorCode()}: {$exception->getMessage()}";
 
-        return $event->setResponse($this->errorResponse($message, Response::HTTP_INTERNAL_SERVER_ERROR));
+        $json = $this->errorResponse($message, Response::HTTP_INTERNAL_SERVER_ERROR);
+
+        return $event->setResponse($json);
     }
 }

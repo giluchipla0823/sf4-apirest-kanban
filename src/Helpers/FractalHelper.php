@@ -1,14 +1,18 @@
 <?php
 
-
 namespace App\Helpers;
-
 
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 
 class FractalHelper
 {
+    /**
+     * Aplicar transformador fractal
+     *
+     * @param Item|Collection $resource
+     * @return mixed
+     */
     private static function create($resource){
         $container = AppHelper::getKernelContainer();
         $request = $container->get('request_stack')->getCurrentRequest();
@@ -20,13 +24,27 @@ class FractalHelper
         return $fractal->createData($resource)->toArray()['data'];
     }
 
-    public static function collection($data, $transformer){
+    /**
+     * Crear recurso de colección de entidades
+     *
+     * @param array $data
+     * @param string $transformer
+     * @return mixed
+     */
+    public static function collection(array $data, string $transformer){
         $resource = new Collection($data, new $transformer);
 
         return self::create($resource);
     }
 
-    public static function item($data, $transformer){
+    /**
+     * Crear recurso de instancia de una entidad
+     *
+     * @param $data
+     * @param string $transformer
+     * @return mixed
+     */
+    public static function item($data, string $transformer){
         $resource = new Item($data, new $transformer);
 
         return self::create($resource);

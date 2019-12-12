@@ -70,6 +70,7 @@ Trait ApiResponser{
      * @return JsonResponse
      */
     protected function errorResponse(string $message, int $code, array $extras = []){
+
         return $this->_makeResponse(NULL, $message, $code, $extras);
     }
 
